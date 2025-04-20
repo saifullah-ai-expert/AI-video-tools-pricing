@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Model Cost Calculator (2025 Est.)</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Basic Reset & Font */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 15px;
+        }
+
+        /* Container */
+        .cost-container {
+            max-width: 1300px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #ffffff;
+            padding: 35px 40px;
+            text-align: center;
+        }
+        header h1 { margin-bottom: 10px; font-size: 2.2em; font-weight: 600; }
+        header p { font-size: 1.1em; opacity: 0.9; max-width: 800px; margin: auto;}
+
+        /* Controls Area */
+        .controls { padding: 30px 40px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; text-align: center; }
+        .controls label { display: block; font-size: 1.2em; font-weight: 500; margin-bottom: 15px; color: #495057; }
+        .controls input[type="range"] { width: 80%; max-width: 500px; cursor: pointer; height: 8px; background: #dee2e6; border-radius: 5px; appearance: none; outline: none; }
+        .controls input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; background: #6a11cb; border-radius: 50%; cursor: pointer; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+        .controls input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: #6a11cb; border-radius: 50%; cursor: pointer; border: none; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+        .controls #videos-count-display { display: block; margin-top: 15px; font-size: 1.3em; font-weight: bold; color: #2575fc; }
+        .controls #videos-count-display span { font-size: 1.5em; vertical-align: middle; }
+
+        /* Comparison Grid */
+        main { padding: 40px; }
+        .tools-comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+
+        /* Tool Card */
+        .tool-price-card {
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out; /* Add border-color transition */
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            /* --- CHANGE: Set default border --- */
+            border: 3px solid #e9ecef; /* Default light grey border */
+        }
+        .tool-price-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Slightly increased shadow */
+        }
+
+        /* --- CHANGE: Set specific BORDER colors --- */
+        .runway-g4-card { border-color: #4A90E2; } /* Vibrant Blue */
+        .runway-g4t-card { border-color: #34D399; } /* Emerald Green */
+        .sora-card { border-color: #2DD4BF; }      /* Rich Teal */
+        .kling-m-card { border-color: #F97316; }   /* Deep Orange */
+        .kling-s-card { border-color: #EC4899; }   /* Pink/Magenta */
+        .hailuo-card { border-color: #8B5CF6; }    /* Indigo/Violet */
+        /* --- END BORDER COLOR CHANGES --- */
+
+        /* Rest of the card styles remain largely the same */
+        .tool-price-card h2 { font-size: 1.5em; margin-bottom: 15px; color: #343a40; display: flex; align-items: center; font-weight: 600; }
+        .tool-price-card h2 i { margin-right: 10px; opacity: 0.7; font-size: 0.9em;}
+        .tool-price-card .price-info, .tool-price-card .limits-info, .tool-price-card .usage-info, .tool-price-card .cost-per-video { margin-bottom: 14px; font-size: 0.95em; color: #495057; padding-left: 25px; position: relative; }
+        .tool-price-card .price-info i, .tool-price-card .limits-info i, .tool-price-card .usage-info i, .tool-price-card .cost-per-video i { position: absolute; left: 0; top: 4px; width: 20px; text-align: center; color: #6c757d; font-size: 1.1em; }
+        .tool-price-card strong { font-weight: 600; color: #343a40; }
+        .tool-price-card .cost-value, .tool-price-card .credits-value { font-weight: bold; font-size: 1.05em; color: #28a745; }
+        .tool-price-card .limit-warning { display: none; color: #dc3545; font-weight: bold; font-size: 0.9em; margin-top: 8px; padding-left: 25px; position: relative; }
+        .tool-price-card .limit-warning.visible { display: block; }
+        .tool-price-card .limit-warning i { position: absolute; left: 0; top: 4px; width: 20px; text-align: center; }
+        .tool-price-card.limit-reached .cost-value, .tool-price-card.limit-reached .credits-value { color: #adb5bd; text-decoration: line-through; }
+        .tool-price-card.limit-reached .cost-per-video .fa-coins { color: #adb5bd; }
+
+        /* Footer */
+        footer { text-align: center; padding: 30px 40px; background-color: #e9ecef; color: #6c757d; font-size: 0.9em; border-top: 1px solid #dee2e6; margin-top: 30px; }
+        footer p { margin-bottom: 5px; }
+        footer strong { color: #495057;}
+
+        /* Responsive */
+        @media (max-width: 1100px) { .tools-comparison-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); } }
+        @media (max-width: 768px) { header h1 { font-size: 1.8em; } header p { font-size: 1em; } .controls { padding: 25px 20px;} .controls label { font-size: 1.1em; } .controls input[type="range"] { width: 95%; } main { padding: 30px 20px;} .tools-comparison-grid { grid-template-columns: 1fr; gap: 25px; } .tool-price-card h2 { font-size: 1.4em; } }
+        @media (max-width: 480px) { header { padding: 30px 20px; } header h1 { font-size: 1.6em; } .tool-price-card { padding: 20px; } }
+    </style>
+</head>
+<body>
+
+    <div class="cost-container">
+        <header>
+            <h1>AI Video Model Cost Breakdown (2025 Estimates)</h1>
+            <p>How much does creating AI video *really* cost per clip? Compare specific models from leading tools based on their monthly plans.</p>
+        </header>
+
+        <div class="controls">
+            <label for="videos-slider">How many 5-second videos are you creating this month?</label>
+            <input type="range" id="videos-slider" name="videos-slider" min="1" max="35" value="10">
+            <p id="videos-count-display">Creating: <span id="videos-count">10</span> videos</p>
+        </div>
+
+        <main>
+            <div class="tools-comparison-grid">
+
+                <!-- Runway Gen-4 Card -->
+                <div class="tool-price-card runway-g4-card" id="runway-g4">
+                    <h2><i class="fas fa-palette"></i>Runway (Gen-4)</h2>
+                    <p class="price-info"><i class="fas fa-dollar-sign"></i><strong>Base Plan:</strong> ~$15 / month</p>
+                    <p class="limits-info"><i class="fas fa-battery-full"></i><strong>Yields:</strong> ~10 videos (5s each) from 625 credits</p>
+                    <p class="usage-info"><i class="fas fa-tachometer-alt"></i><strong>Credits Used:</strong> <span class="credits-value">0</span> / 625</p>
+                    <p class="cost-per-video"><i class="fas fa-coins"></i><strong>Est. Cost/Video:</strong> <span class="cost-value">$0.00</span></p>
+                    <p class="limit-warning"><i class="fas fa-exclamation-triangle"></i> Monthly credit limit exceeded!</p>
+                </div>
+
+                <!-- Runway Gen-4 Turbo Card -->
+                <div class="tool-price-card runway-g4t-card" id="runway-g4t">
+                     <h2><i class="fas fa-bolt"></i>Runway (Gen-4 Turbo)</h2>
+                    <p class="price-info"><i class="fas fa-dollar-sign"></i><strong>Base Plan:</strong> ~$15 / month</p>
+                    <p class="limits-info"><i class="fas fa-battery-full"></i><strong>Yields:</strong> ~25 videos (5s each) from 625 credits</p>
+                    <p class="usage-info"><i class="fas fa-tachometer-alt"></i><strong>Credits Used:</strong> <span class="credits-value">0</span> / 625</p>
+                    <p class="cost-per-video"><i class="fas fa-coins"></i><strong>Est. Cost/Video:</strong> <span class="cost-value">$0.00</span></p>
+                    <p class="limit-warning"><i class="fas fa-exclamation-triangle"></i> Monthly credit limit exceeded!</p>
+                </div>
+
+                <!-- Sora Card -->
+                <div class="tool-price-card sora-card" id="sora">
+                    <h2><i class="fas fa-brain"></i>Sora (OpenAI)</h2>
+                    <p class="price-info"><i class="fas fa-dollar-sign"></i><strong>Base Plan:</strong> ~$20 / month (via ChatGPT Plus)</p>
+                    <p class="limits-info"><i class="fas fa-battery-full"></i><strong>Yields:</strong> ~16 videos (5s each) from 1000 credits</p>
+                    <p class="usage-info"><i class="fas fa-tachometer-alt"></i><strong>Credits Used:</strong> <span class="credits-value">0</span> / 1000</p>
+                    <p class="cost-per-video"><i class="fas fa-coins"></i><strong>Est. Cost/Video:</strong> <span class="cost-value">$0.00</span></p>
+                     <p class="limit-warning"><i class="fas fa-exclamation-triangle"></i> Monthly credit limit exceeded!</p>
+               </div>
+
+                <!-- Kling 2.0 Master Card -->
+                <div class="tool-price-card kling-m-card" id="kling-m">
+                    <h2><i class="fas fa-crown"></i>Kling (2.0 Master)</h2>
+                     <p class="price-info"><i class="fas fa-dollar-sign"></i><strong>Base Plan:</strong> ~$9 / month</p>
+                     <p class="limits-info"><i class="fas fa-battery-full"></i><strong>Yields:</strong> ~6 videos (5s each, Master) from 660 credits</p>
+                    <p class="usage-info"><i class="fas fa-tachometer-alt"></i><strong>Credits Used:</strong> <span class="credits-value">0</span> / 660</p>
+                    <p class="cost-per-video"><i class="fas fa-coins"></i><strong>Est. Cost/Video:</strong> <span class="cost-value">$0.00</span></p>
+                     <p class="limit-warning"><i class="fas fa-exclamation-triangle"></i> Monthly credit limit exceeded!</p>
+               </div>
+
+                <!-- Kling 1.6 Standard Card -->
+                <div class="tool-price-card kling-s-card" id="kling-s">
+                    <h2><i class="fas fa-robot"></i>Kling (1.6 Standard)</h2>
+                     <p class="price-info"><i class="fas fa-dollar-sign"></i><strong>Base Plan:</strong> ~$9 / month</p>
+                     <p class="limits-info"><i class="fas fa-battery-full"></i><strong>Yields:</strong> ~33 videos (5s each, Std) from 660 credits</p>
+                    <p class="usage-info"><i class="fas fa-tachometer-alt"></i><strong>Credits Used:</strong> <span class="credits-value">0</span> / 660</p>
+                    <p class="cost-per-video"><i class="fas fa-coins"></i><strong>Est. Cost/Video:</strong> <span class="cost-value">$0.00</span></p>
+                     <p class="limit-warning"><i class="fas fa-exclamation-triangle"></i> Monthly credit limit exceeded!</p>
+               </div>
+
+                <!-- Hailuo AI Card -->
+                <div class="tool-price-card hailuo-card" id="hailuo">
+                    <h2><i class="fas fa-wand-magic-sparkles"></i>Hailuo AI</h2>
+                    <p class="price-info"><i class="fas fa-dollar-sign"></i><strong>Base Plan:</strong> ~$9.99 / month</p>
+                    <p class="limits-info"><i class="fas fa-battery-full"></i><strong>Yields:</strong> ~33 videos (5s each) from 1000 credits</p>
+                    <p class="usage-info"><i class="fas fa-tachometer-alt"></i><strong>Credits Used:</strong> <span class="credits-value">0</span> / 1000</p>
+                    <p class="cost-per-video"><i class="fas fa-coins"></i><strong>Est. Cost/Video:</strong> <span class="cost-value">$0.00</span></p>
+                     <p class="limit-warning"><i class="fas fa-exclamation-triangle"></i> Monthly credit limit exceeded!</p>
+               </div>
+
+            </div>
+        </main>
+
+        <footer>
+            <p>Published by <strong>Janoob</strong> | Founder: <strong>Saif Ullah</strong> (AI Consultant)</p>
+            <p>&copy; 2025 AI Cost Insights. Calculations are estimates based on reported base plans and credit usage for ~5s videos.</p>
+            <p><small>Actual costs depend on exact models, settings, video length/resolution, and plan details. Always check provider pricing.</small></p>
+        </footer>
+    </div>
+
+    <script>
+        // --- Tool Data ---
+        const toolData = {
+            'runway-g4': { monthlyCost: 15, maxCredits: 625, creditsPer5sVideo: 60.1, cardElement: document.getElementById('runway-g4') },
+            'runway-g4t': { monthlyCost: 15, maxCredits: 625, creditsPer5sVideo: 25, cardElement: document.getElementById('runway-g4t') },
+            'sora': { monthlyCost: 20, maxCredits: 1000, creditsPer5sVideo: 60, cardElement: document.getElementById('sora') },
+            'kling-m': { monthlyCost: 9, maxCredits: 660, creditsPer5sVideo: 100, cardElement: document.getElementById('kling-m') },
+            'kling-s': { monthlyCost: 9, maxCredits: 660, creditsPer5sVideo: 20, cardElement: document.getElementById('kling-s') },
+            'hailuo': { monthlyCost: 9.99, maxCredits: 1000, creditsPer5sVideo: 30, cardElement: document.getElementById('hailuo') }
+        };
+
+        // --- DOM Elements ---
+        const slider = document.getElementById('videos-slider');
+        const videosCountSpan = document.getElementById('videos-count');
+
+        // --- Update Function ---
+        function updateCosts() {
+            const numberOfVideos = parseInt(slider.value);
+            videosCountSpan.textContent = numberOfVideos;
+
+            for (const toolKey in toolData) {
+                const tool = toolData[toolKey];
+                if (!tool.cardElement) { console.warn(`Card element not found for key: ${toolKey}`); continue; }
+                const card = tool.cardElement;
+                const creditsUsedEl = card.querySelector('.usage-info .credits-value');
+                const costPerVideoEl = card.querySelector('.cost-per-video .cost-value');
+                const warningEl = card.querySelector('.limit-warning');
+                if (!creditsUsedEl || !costPerVideoEl || !warningEl) { console.warn(`Output elements not found in card for key: ${toolKey}`); continue; }
+
+                const totalCreditsUsed = numberOfVideos * tool.creditsPer5sVideo;
+                const effectiveCostPerVideo = numberOfVideos > 0 ? tool.monthlyCost / numberOfVideos : 0;
+
+                creditsUsedEl.textContent = `${Math.round(totalCreditsUsed)}`;
+
+                if (totalCreditsUsed > tool.maxCredits) {
+                    card.classList.add('limit-reached'); warningEl.classList.add('visible'); costPerVideoEl.textContent = 'N/A';
+                } else {
+                    card.classList.remove('limit-reached'); warningEl.classList.remove('visible'); costPerVideoEl.textContent = `$${effectiveCostPerVideo.toFixed(2)}`;
+                }
+            }
+        }
+        // --- Event Listener & Initial Load ---
+        slider.addEventListener('input', updateCosts);
+        document.addEventListener('DOMContentLoaded', updateCosts);
+    </script>
+
+</body>
+</html>
